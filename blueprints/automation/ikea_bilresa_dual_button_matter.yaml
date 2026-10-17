@@ -1,0 +1,129 @@
+blueprint:
+  name: IKEA BILRESA dual button - Simple via Matter
+  description: >
+    Simpel blueprint til IKEA BILRESA dual button via Matter.
+    Understøtter klik, dobbeltklik, hold og slip for knap 1 og knap 2.
+    Bruger Matter event-entiteterne (event.*) som Home Assistant opretter
+    for hver knap. Vælg begge knapper nedenfor.
+    OBS: Klik udløses på "slip" (short_release), så en handling på klik
+    kommer først når knappen slippes.
+  domain: automation
+  source_url: https://github.com/math7935/Home-Assistant-Blueprints/blueprints/automation/ikea_bilresa_dual_button_matter.yaml
+
+  input:
+    button_1:
+      name: Knap 1 (event-entitet)
+      description: Matter event-entiteten for den første knap.
+      selector:
+        entity:
+          filter:
+            - domain: event
+              integration: matter
+
+    button_2:
+      name: Knap 2 (event-entitet)
+      description: Matter event-entiteten for den anden knap.
+      selector:
+        entity:
+          filter:
+            - domain: event
+              integration: matter
+
+    # ---------------------------------------------------------------
+    # KNAP 1
+    # ---------------------------------------------------------------
+    b1_click:
+      name: "Knap 1 – Klik"
+      default: []
+      selector: { action: {} }
+
+    b1_double:
+      name: "Knap 1 – Dobbeltklik"
+      default: []
+      selector: { action: {} }
+
+    b1_hold:
+      name: "Knap 1 – Hold (long_press)"
+      default: []
+      selector: { action: {} }
+
+    b1_release:
+      name: "Knap 1 – Slip efter hold (long_release)"
+      default: []
+      selector: { action: {} }
+
+    # ---------------------------------------------------------------
+    # KNAP 2
+    # ---------------------------------------------------------------
+    b2_click:
+      name: "Knap 2 – Klik"
+      default: []
+      selector: { action: {} }
+
+    b2_double:
+      name: "Knap 2 – Dobbeltklik"
+      default: []
+      selector: { action: {} }
+
+    b2_hold:
+      name: "Knap 2 – Hold (long_press)"
+      default: []
+      selector: { action: {} }
+
+    b2_release:
+      name: "Knap 2 – Slip efter hold (long_release)"
+      default: []
+      selector: { action: {} }
+
+mode: single
+max_exceeded: silent
+
+trigger:
+  - platform: state
+    entity_id: !input button_1
+    id: b1
+  - platform: state
+    entity_id: !input button_2
+    id: b2
+
+# Event-entiteter skifter state (timestamp) ved hver hændelse.
+# Ignorer overgange fra/til unavailable/unknown.
+condition:
+  - condition: template
+    value_template: >
+      {{ trigger.from_state is not none
+         and trigger.to_state is not none
+         and trigger.from_state.state not in ['unavailable', 'unknown']
+         and trigger.to_state.state not in ['unavailable', 'unknown'] }}
+
+variables:
+  event_type: "{{ trigger.to_state.attributes.event_type | default('') }}"
+  press_count: "{{ trigger.to_state.attributes.total_number_of_presses_counted | default(0) | int(0) }}"
+
+action:
+  - choose:
+      # ---------------- KNAP 1 ----------------
+      - conditions: "{{ trigger.id == 'b1' and event_type == 'short_release' }}"
+        sequence: !input b1_click
+
+      - conditions: "{{ trigger.id == 'b1' and event_type == 'multi_press_complete' and press_count == 2 }}"
+        sequence: !input b1_double
+
+      - conditions: "{{ trigger.id == 'b1' and event_type == 'long_press' }}"
+        sequence: !input b1_hold
+
+      - conditions: "{{ trigger.id == 'b1' and event_type == 'long_release' }}"
+        sequence: !input b1_release
+
+      # ---------------- KNAP 2 ----------------
+      - conditions: "{{ trigger.id == 'b2' and event_type == 'short_release' }}"
+        sequence: !input b2_click
+
+      - conditions: "{{ trigger.id == 'b2' and event_type == 'multi_press_complete' and press_count == 2 }}"
+        sequence: !input b2_double
+
+      - conditions: "{{ trigger.id == 'b2' and event_type == 'long_press' }}"
+        sequence: !input b2_hold
+
+      - conditions: "{{ trigger.id == 'b2' and event_type == 'long_release' }}"
+        sequence: !input b2_release
