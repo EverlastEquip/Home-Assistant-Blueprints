@@ -1,12 +1,11 @@
 blueprint:
   name: IKEA BILRESA dual button - Simple via Matter
   description: >
-    Simpel blueprint til IKEA BILRESA dual button via Matter.
-    Understøtter klik, dobbeltklik, hold og slip for knap 1 og knap 2.
-    Bruger Matter event-entiteterne (event.*) som Home Assistant opretter
-    for hver knap. Vælg begge knapper nedenfor.
-    OBS: Klik udløses på "slip" (short_release), så en handling på klik
-    kommer først når knappen slippes.
+    Simpel blueprint til IKEA BILRESA dual button (E2489) via Matter.
+    Understøtter klik, dobbeltklik, hold (ved tryk) og slip efter hold
+    for knap 1 og knap 2. Bruger de to event-entiteter, som HA opretter
+    for hver knap, så der kun trigges ved rigtige knaphandlinger.
+    Event-typer: multi_press_1, multi_press_2, long_press, long_release.
   domain: automation
   source_url: https://github.com/math7935/Home-Assistant-Blueprints/blueprints/automation/ikea_bilresa_dual_button_matter.yaml
 
@@ -33,12 +32,12 @@ blueprint:
     # KNAP 1
     # ---------------------------------------------------------------
     b1_click:
-      name: "Knap 1 – Klik"
+      name: "Knap 1 – Klik (multi_press_1)"
       default: []
       selector: { action: {} }
 
     b1_double:
-      name: "Knap 1 – Dobbeltklik"
+      name: "Knap 1 – Dobbeltklik (multi_press_2)"
       default: []
       selector: { action: {} }
 
@@ -56,12 +55,12 @@ blueprint:
     # KNAP 2
     # ---------------------------------------------------------------
     b2_click:
-      name: "Knap 2 – Klik"
+      name: "Knap 2 – Klik (multi_press_1)"
       default: []
       selector: { action: {} }
 
     b2_double:
-      name: "Knap 2 – Dobbeltklik"
+      name: "Knap 2 – Dobbeltklik (multi_press_2)"
       default: []
       selector: { action: {} }
 
@@ -75,30 +74,26 @@ blueprint:
       default: []
       selector: { action: {} }
 
-mode: single
+mode: restart
 max_exceeded: silent
 
 trigger:
+  # not_from/not_to forhindrer udløsning ved genstart af HA/Matter
+  # (event-entiteter bruger timestamp som state).
   - platform: state
     entity_id: !input button_1
     id: b1
+    not_from: 'unavailable'
+    not_to: 'unavailable'
+
   - platform: state
     entity_id: !input button_2
     id: b2
-
-# Event-entiteter skifter state (timestamp) ved hver hændelse.
-# Ignorer overgange fra/til unavailable/unknown.
-condition:
-  - condition: template
-    value_template: >
-      {{ trigger.from_state is not none
-         and trigger.to_state is not none
-         and trigger.from_state.state not in ['unavailable', 'unknown']
-         and trigger.to_state.state not in ['unavailable', 'unknown'] }}
+    not_from: 'unavailable'
+    not_to: 'unavailable'
 
 variables:
   event_type: "{{ trigger.to_state.attributes.event_type | default('') }}"
-  press_count: "{{ trigger.to_state.attributes.total_number_of_presses_counted | default(0) | int(0) }}"
 
 action:
   - choose:
@@ -116,7 +111,7 @@ action:
         sequence: !input b1_release
 
       # ---------------- KNAP 2 ----------------
-      - conditions: "{{ trigger.id == 'b2' and event_type == 'smulti_press_1' }}"
+      - conditions: "{{ trigger.id == 'b2' and event_type == 'multi_press_1' }}"
         sequence: !input b2_click
 
       - conditions: "{{ trigger.id == 'b2' and event_type == 'multi_press_2' }}"

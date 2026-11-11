@@ -1,0 +1,251 @@
+blueprint:
+  name: IKEA BILRESA scroll wheel - Simple via Matter
+  description: >
+    Simpel blueprint til IKEA BILRESA scroll wheel via Matter.
+    Understøtter 3 kanaler. Hver kanal har: scroll højre, scroll venstre,
+    klik, dobbeltklik, hold (long_press) og slip efter hold (long_release).
+
+    I scroll-handlinger kan du bruge to variabler:
+    {{ steps }} = antal klik (1-8) i det scroll-event, der lige kom, og
+    {{ direction }} = 'right' eller 'left'.
+
+    VIGTIGT: Remoten har 9 event-entiteter, og de er muligvis deaktiveret som
+    standard. Aktiver dem under Indstillinger -> Enheder -> Matter -> din
+    BILRESA, før du vælger dem her. Rækkefølgen pr. kanal er (ifølge
+    community): scroll højre, scroll venstre, knap. Dvs. kanal 1 = event 1-3,
+    kanal 2 = event 4-6, kanal 3 = event 7-9. Tjek at det passer hos dig.
+  domain: automation
+  source_url: https://github.com/math7935/Home-Assistant-Blueprints/blueprints/automation/ikea_bilresa_scroll_wheel_matter.yaml
+  homeassistant:
+    min_version: 2024.6.0
+
+  input:
+    # ===============================================================
+    # KANAL 1
+    # ===============================================================
+    channel_1:
+      name: Kanal 1
+      icon: mdi:numeric-1-circle
+      collapsed: false
+      input:
+        c1_cw:
+          name: "K1 – Scroll højre (event-entitet)"
+          selector:
+            entity:
+              filter:
+                - domain: event
+                  integration: matter
+        c1_ccw:
+          name: "K1 – Scroll venstre (event-entitet)"
+          selector:
+            entity:
+              filter:
+                - domain: event
+                  integration: matter
+        c1_btn:
+          name: "K1 – Knap (event-entitet)"
+          selector:
+            entity:
+              filter:
+                - domain: event
+                  integration: matter
+        c1_right:
+          name: "K1 – Scroll højre"
+          default: []
+          selector: { action: {} }
+        c1_left:
+          name: "K1 – Scroll venstre"
+          default: []
+          selector: { action: {} }
+        c1_click:
+          name: "K1 – Klik"
+          default: []
+          selector: { action: {} }
+        c1_double:
+          name: "K1 – Dobbeltklik"
+          default: []
+          selector: { action: {} }
+        c1_hold:
+          name: "K1 – Hold (long_press)"
+          default: []
+          selector: { action: {} }
+        c1_release:
+          name: "K1 – Slip efter hold (long_release)"
+          default: []
+          selector: { action: {} }
+
+    # ===============================================================
+    # KANAL 2
+    # ===============================================================
+    channel_2:
+      name: Kanal 2
+      icon: mdi:numeric-2-circle
+      collapsed: true
+      input:
+        c2_cw:
+          name: "K2 – Scroll højre (event-entitet)"
+          selector:
+            entity:
+              filter:
+                - domain: event
+                  integration: matter
+        c2_ccw:
+          name: "K2 – Scroll venstre (event-entitet)"
+          selector:
+            entity:
+              filter:
+                - domain: event
+                  integration: matter
+        c2_btn:
+          name: "K2 – Knap (event-entitet)"
+          selector:
+            entity:
+              filter:
+                - domain: event
+                  integration: matter
+        c2_right:
+          name: "K2 – Scroll højre"
+          default: []
+          selector: { action: {} }
+        c2_left:
+          name: "K2 – Scroll venstre"
+          default: []
+          selector: { action: {} }
+        c2_click:
+          name: "K2 – Klik"
+          default: []
+          selector: { action: {} }
+        c2_double:
+          name: "K2 – Dobbeltklik"
+          default: []
+          selector: { action: {} }
+        c2_hold:
+          name: "K2 – Hold (long_press)"
+          default: []
+          selector: { action: {} }
+        c2_release:
+          name: "K2 – Slip efter hold (long_release)"
+          default: []
+          selector: { action: {} }
+
+    # ===============================================================
+    # KANAL 3
+    # ===============================================================
+    channel_3:
+      name: Kanal 3
+      icon: mdi:numeric-3-circle
+      collapsed: true
+      input:
+        c3_cw:
+          name: "K3 – Scroll højre (event-entitet)"
+          selector:
+            entity:
+              filter:
+                - domain: event
+                  integration: matter
+        c3_ccw:
+          name: "K3 – Scroll venstre (event-entitet)"
+          selector:
+            entity:
+              filter:
+                - domain: event
+                  integration: matter
+        c3_btn:
+          name: "K3 – Knap (event-entitet)"
+          selector:
+            entity:
+              filter:
+                - domain: event
+                  integration: matter
+        c3_right:
+          name: "K3 – Scroll højre"
+          default: []
+          selector: { action: {} }
+        c3_left:
+          name: "K3 – Scroll venstre"
+          default: []
+          selector: { action: {} }
+        c3_click:
+          name: "K3 – Klik"
+          default: []
+          selector: { action: {} }
+        c3_double:
+          name: "K3 – Dobbeltklik"
+          default: []
+          selector: { action: {} }
+        c3_hold:
+          name: "K3 – Hold (long_press)"
+          default: []
+          selector: { action: {} }
+        c3_release:
+          name: "K3 – Slip efter hold (long_release)"
+          default: []
+          selector: { action: {} }
+
+mode: restart
+max_exceeded: silent
+
+trigger:
+  # not_from/not_to forhindrer udløsning ved genstart af HA/Matter
+  # (event-entiteter bruger timestamp som state).
+  - { platform: state, entity_id: !input c1_cw,  id: c1_cw,  not_from: 'unavailable', not_to: 'unavailable' }
+  - { platform: state, entity_id: !input c1_ccw, id: c1_ccw, not_from: 'unavailable', not_to: 'unavailable' }
+  - { platform: state, entity_id: !input c1_btn, id: c1_btn, not_from: 'unavailable', not_to: 'unavailable' }
+  - { platform: state, entity_id: !input c2_cw,  id: c2_cw,  not_from: 'unavailable', not_to: 'unavailable' }
+  - { platform: state, entity_id: !input c2_ccw, id: c2_ccw, not_from: 'unavailable', not_to: 'unavailable' }
+  - { platform: state, entity_id: !input c2_btn, id: c2_btn, not_from: 'unavailable', not_to: 'unavailable' }
+  - { platform: state, entity_id: !input c3_cw,  id: c3_cw,  not_from: 'unavailable', not_to: 'unavailable' }
+  - { platform: state, entity_id: !input c3_ccw, id: c3_ccw, not_from: 'unavailable', not_to: 'unavailable' }
+  - { platform: state, entity_id: !input c3_btn, id: c3_btn, not_from: 'unavailable', not_to: 'unavailable' }
+
+variables:
+  event_type: "{{ trigger.to_state.attributes.event_type | default('') }}"
+  # Scroll: event_type er multi_press_N, hvor N = antal klik i dette scroll.
+  steps: >
+    {{ (event_type.split('_')[-1] | int(1)) if event_type.startswith('multi_press_') else 0 }}
+  direction: >
+    {{ 'right' if trigger.id.endswith('_cw') else ('left' if trigger.id.endswith('_ccw') else '') }}
+
+action:
+  - choose:
+      # ===================== KANAL 1 =====================
+      - conditions: "{{ trigger.id == 'c1_cw' and steps > 0 }}"
+        sequence: !input c1_right
+      - conditions: "{{ trigger.id == 'c1_ccw' and steps > 0 }}"
+        sequence: !input c1_left
+      - conditions: "{{ trigger.id == 'c1_btn' and event_type == 'multi_press_1' }}"
+        sequence: !input c1_click
+      - conditions: "{{ trigger.id == 'c1_btn' and event_type == 'multi_press_2' }}"
+        sequence: !input c1_double
+      - conditions: "{{ trigger.id == 'c1_btn' and event_type == 'long_press' }}"
+        sequence: !input c1_hold
+      - conditions: "{{ trigger.id == 'c1_btn' and event_type == 'long_release' }}"
+        sequence: !input c1_release
+
+      # ===================== KANAL 2 =====================
+      - conditions: "{{ trigger.id == 'c2_cw' and steps > 0 }}"
+        sequence: !input c2_right
+      - conditions: "{{ trigger.id == 'c2_ccw' and steps > 0 }}"
+        sequence: !input c2_left
+      - conditions: "{{ trigger.id == 'c2_btn' and event_type == 'multi_press_1' }}"
+        sequence: !input c2_click
+      - conditions: "{{ trigger.id == 'c2_btn' and event_type == 'multi_press_2' }}"
+        sequence: !input c2_double
+      - conditions: "{{ trigger.id == 'c2_btn' and event_type == 'long_press' }}"
+        sequence: !input c2_hold
+      - conditions: "{{ trigger.id == 'c2_btn' and event_type == 'long_release' }}"
+        sequence: !input c2_release
+
+      # ===================== KANAL 3 =====================
+      - conditions: "{{ trigger.id == 'c3_cw' and steps > 0 }}"
+        sequence: !input c3_right
+      - conditions: "{{ trigger.id == 'c3_ccw' and steps > 0 }}"
+        sequence: !input c3_left
+      - conditions: "{{ trigger.id == 'c3_btn' and event_type == 'multi_press_1' }}"
+        sequence: !input c3_click
+      - conditions: "{{ trigger.id == 'c3_btn' and event_type == 'multi_press_2' }}"
+        sequence: !input c3_double
+      - conditions: "{{ trigger.id == 'c3_btn' and event_type == 'long_press' }}"
+        sequence: !input c3_hold
+      - conditions: "{{ trigger.id == 'c3_btn' and event_type == 'long_release' }}"
+        sequence: !input c3_release
