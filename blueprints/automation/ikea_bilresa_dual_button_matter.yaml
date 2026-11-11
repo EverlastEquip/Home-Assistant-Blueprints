@@ -103,10 +103,10 @@ variables:
 action:
   - choose:
       # ---------------- KNAP 1 ----------------
-      - conditions: "{{ trigger.id == 'b1' and event_type == 'short_release' }}"
+      - conditions: "{{ trigger.id == 'b1' and event_type == 'multi_press_1' }}"
         sequence: !input b1_click
 
-      - conditions: "{{ trigger.id == 'b1' and event_type == 'multi_press_complete' and press_count == 2 }}"
+      - conditions: "{{ trigger.id == 'b1' and event_type == 'multi_press_2' }}"
         sequence: !input b1_double
 
       - conditions: "{{ trigger.id == 'b1' and event_type == 'long_press' }}"
@@ -116,10 +116,10 @@ action:
         sequence: !input b1_release
 
       # ---------------- KNAP 2 ----------------
-      - conditions: "{{ trigger.id == 'b2' and event_type == 'short_release' }}"
+      - conditions: "{{ trigger.id == 'b2' and event_type == 'smulti_press_1' }}"
         sequence: !input b2_click
 
-      - conditions: "{{ trigger.id == 'b2' and event_type == 'multi_press_complete' and press_count == 2 }}"
+      - conditions: "{{ trigger.id == 'b2' and event_type == 'multi_press_2' }}"
         sequence: !input b2_double
 
       - conditions: "{{ trigger.id == 'b2' and event_type == 'long_press' }}"
